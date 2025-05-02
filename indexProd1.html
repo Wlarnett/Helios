@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Helios</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: url('public/background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 1rem;
+    }
+    #header {
+      text-align: center;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.7);
+      height: 5vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #banner {
+      font-size: 1.5rem;
+      font-family: 'Courier New', Courier, monospace;
+      color: #00ffcc;
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+    }
+    #main-volume {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-right: 1rem;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 0.5rem;
+      border-radius: 2rem;
+    }
+    #main-volume label {
+      font-size: 1rem;
+    }
+    #main-volume input {
+      width: 7rem;
+    }
+    #global-controls {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 0.3rem;
+      padding: 0.3rem;
+      height: 5vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    #audio-selection {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 0.3rem;
+      padding: 0.3rem;
+      height: 15vh;
+      overflow: hidden;
+    }
+    #track-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.2rem;
+      max-height: 12vh;
+      overflow-y: auto;
+    }
+    #track-buttons div {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    #track-buttons button {
+      width: fit-content;
+      text-align: left;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+    }
+    #track-buttons input[type="range"] {
+      width: 5rem;
+    }
+    #main-container {
+      display: flex;
+      flex-direction: row;
+      flex-grow: 1;
+      padding: 0.3rem;
+      height: 62vh;
+      justify-content: space-between;
+    }
+    #channels-left {
+      width: 420px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.3rem;
+      padding: 0.3rem;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 0.3rem;
+    }
+    #channels-right {
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 0.3rem;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 0.3rem;
+      align-items: center;
+    }
+    .channel-button, .signal-button {
+      background: linear-gradient(45deg, #00ffcc, #0077b6);
+      border: none;
+      border-radius: 0.2rem;
+      color: #fff;
+      padding: 0.5rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-align: center;
+      text-transform: uppercase;
+      width: 200px;
+      min-width: 200px;
+    }
+    .channel-button:hover, .signal-button:hover {
+      background: linear-gradient(45deg, #00cc00, #009900);
+    }
+    button {
+      background: linear-gradient(45deg, #00ffcc, #0077b6);
+      border: none;
+      border-radius: 0.2rem;
+      color: #fff;
+      padding: 0.2rem 0.5rem;
+      margin: 0.1rem 0;
+      cursor: pointer;
+      font-size: 0.7rem;
+      width: fit-content;
+    }
+    button.active {
+      background: linear-gradient(45deg, #00cc00, #009900);
+    }
+    button.stopped {
+      background: linear-gradient(45deg, #ff3333, #cc0000);
+    }
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    input[type="range"], input[type="number"] {
+      width: 100%;
+      margin: 0.1rem 0;
+      font-size: 0.7rem;
+    }
+    input[type="number"] {
+      padding: 0.1rem;
+      width: 4rem;
+    }
+    select {
+      background: #333;
+      color: #fff;
+      border-radius: 0.2rem;
+      padding: 0.2rem;
+      margin: 0.1rem;
+      font-size: 0.7rem;
+      width: fit-content;
+      max-width: 80%;
+    }
+    .freq-control {
+      margin-bottom: 0.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .freq-control div {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .signal-control {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.3rem;
+      width: 100%;
+      max-width: 600px;
+      padding: 0.5rem;
+    }
+    .signal-control div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .freq-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .freq-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    #premade-treatments {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 0.3rem;
+      padding: 0.3rem;
+      height: 8vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #premade-treatments div {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    #stop-all-container {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 0.3rem;
+      padding: 0.3rem;
+      height: 4vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    h3 {
+      font-size: 0.8rem;
+      margin: 0.2rem 0;
+      background: #00cc00;
+      color: #000;
+      padding: 0.2rem;
+      border-radius: 0.2rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      font-family: Verdana, sans-serif;
+    }
+    label {
+      font-size: 0.7rem;
+    }
+    #channel-popup, #signal-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      max-width: 80vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    #channel-popup-content, #signal-popup-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    #popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 999;
+    }
+    #close-popup, #close-signal-popup {
+      background: linear-gradient(45deg, #ff3333, #cc0000);
+      align-self: flex-end;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 1200px) {
+      body { font-size: 0.9rem; }
+      #banner { font-size: 1.3rem; }
+      .channel-button, .signal-button { font-size: 0.7rem; width: 180px; min-width: 180px; }
+      button, select, input { font-size: 0.6rem; }
+      h3 { font-size: 0.7rem; }
+      #main-container { padding: 0.5rem; }
+      #channels-left { width: 380px; }
+      #channels-right { width: 200px; }
+      #main-volume label { font-size: 0.9rem; }
+      #main-volume input { width: 6rem; }
+      #channel-popup, #signal-popup { max-width: 90vw; }
+    }
+    @media (max-width: 800px) {
+      body { font-size: 0.8rem; }
+      #banner { font-size: 1.1rem; }
+      .channel-button, .signal-button { font-size: 0.6rem; padding: 0.3rem; width: 140px; min-width: 140px; }
+      button, select, input { font-size: 0.5rem; }
+      h3 { font-size: 0.6rem; }
+      #track-buttons input[type="range"] { width: 4rem; }
+      input[type="number"] { width: 3rem; }
+      #main-container { padding: 0.3rem; flex-wrap: wrap; }
+      #channels-left { width: 300px; }
+      #channels-right { width: 150px; }
+      #main-volume label { font-size: 0.8rem; }
+      #main-volume input { width: 5rem; }
+      #channel-popup, #signal-popup { max-width: 95vw; max-height: 85vh; padding: 0.5rem; }
+      .signal-control { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <div id="banner">Project Helios</div>
+    <div id="main-volume">
+      <label>Main Volume:</label>
+      <input type="range" id="main-volume-slider" min="0" max="1" step="0.01" value="0.5" disabled>
+    </div>
+  </div>
+  <div id="global-controls">
+    <button id="start-audio">Start Audio</button>
+    <button id="play-all" disabled>Play All</button>
+    <button id="test-channels" disabled>Test Channels</button>
+  </div>
+  <div id="audio-selection">
+    <h3>Audio Tracks</h3>
+    <div id="track-buttons"><p>Click "Start Audio" to load tracks.</p></div>
+  </div>
+  <div id="main-container">
+    <div id="channels-left"></div>
+    <div id="channels-right"></div>
+  </div>
+  <div id="premade-treatments">
+    <h3>Premade Treatments</h3>
+    <select id="treatment-select" disabled>
+      <option value="">Select a Treatment</option>
+    </select>
+    <div>
+      <label>Treatment Volume:</label>
+      <input type="range" id="treatment-volume" min="0" max="0.5" step="0.01" value="0.25" disabled>
+      <button id="treatment-start" disabled>Start Treatment</button>
+      <button id="treatment-stop" disabled>Stop Treatment</button>
+      <label><input type="checkbox" id="treatment-prompt-sounds" disabled> Prompt if other sounds are playing</label>
+    </div>
+  </div>
+  <div id="stop-all-container">
+    <button id="stop-all" disabled>Stop All</button>
+  </div>
+  <div id="popup-overlay"></div>
+  <div id="channel-popup">
+    <button id="close-popup">Close</button>
+    <div id="channel-popup-content"></div>
+  </div>
+  <div id="signal-popup">
+    <button id="close-signal-popup">Close</button>
+    <div id="signal-popup-content"></div>
+  </div>
+  <script>
+    console.log('Starting Project Helios V5...');
+
+    let audioCtx = null;
+    let isAudioInitialized = false;
+    const channels = [
+      { name: 'Left', index: 0 },
+      { name: 'Center', index: 1 },
+      { name: 'Right', index: 2 },
+      { name: 'Right Back', index: 6 },
+      { name: 'Left Surround', index: 4 },
+      { name: 'Left Back', index: 5 },
+      { name: 'Right Surround', index: 7 },
+      { name: 'LFE', index: 3 }
+    ];
+    let trackSources = [];
+    let currentTreatment = null;
+    let treatmentSource = null;
+    let treatmentGain = null;
+    let trackGains = [];
+    let toneGains = [];
+    let oscillators = [];
+    let freqGains = channels.map(() => Array(8).fill(null).map(() => null));
+    let masterGain = null;
+    let lfeFilter = null;
+    let presetTones = channels.map(() => ({ active: false, frequency: null }));
+    let freqStates = channels.map(() => Array(8).fill(false));
+    let signalSource = null;
+    let signalGain = null;
+    let signalModulator = null;
+    let signalModGain = null;
+    let audioBuffers = new Map();
+    let failedPreloads = new Set();
+
+    // Debounce utility
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Normalize file paths
+    function normalizePath(path) {
+      return path.replace(/\\/g, '/').toLowerCase();
+    }
+
+    // Retry fetch with delay
+    async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+          return response;
+        } catch (e) {
+          if (i < retries - 1) {
+            console.warn(`Fetch attempt ${i + 1} failed for ${url}: ${e.message}. Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            throw e;
+          }
+        }
+      }
+    }
+
+    function init() {
+      console.log('Initializing UI...');
+      setupChannels();
+      setupSignalButton();
+      loadFrequencies();
+      document.getElementById('start-audio').addEventListener('click', async () => {
+        console.log('Start Audio clicked');
+        await initAudio();
+      });
+      if (performance.memory) {
+        setInterval(() => {
+          console.log('Memory usage:', performance.memory.usedJSHeapSize / 1024 / 1024, 'MB');
+        }, 60000);
+      }
+      console.log('UI initialization complete');
+    }
+
+    async function initAudio() {
+      console.log('Initializing AudioContext...');
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ 
+          channelCount: 8, 
+          latencyHint: 'playback'
+        });
+        audioCtx.destination.channelCount = 8;
+        audioCtx.destination.channelCountMode = 'explicit';
+        audioCtx.destination.channelInterpretation = 'discrete';
+
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(2, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+
+        await audioCtx.resume();
+        isAudioInitialized = true;
+        console.log('AudioContext initialized with 8 channels:', audioCtx.destination.channelCount);
+
+        await loadAudioTracks();
+        await loadTreatments();
+
+        try {
+          document.getElementById('start-audio').style.display = 'none';
+          document.getElementById('play-all').disabled = false;
+          document.getElementById('test-channels').disabled = false;
+          document.getElementById('stop-all').disabled = false;
+          document.getElementById('main-volume-slider').disabled = false;
+          document.querySelectorAll('.channel-button, .signal-button').forEach(btn => btn.disabled = false);
+          document.getElementById('treatment-select').disabled = false;
+          document.getElementById('treatment-start').disabled = false;
+          document.getElementById('treatment-stop').disabled = false;
+          document.getElementById('treatment-prompt-sounds').disabled = false;
+          document.getElementById('treatment-volume').disabled = false;
+          document.querySelectorAll('#track-buttons button').forEach(btn => btn.disabled = !isAudioInitialized);
+          document.querySelectorAll('#track-buttons input').forEach(input => input.disabled = !isAudioInitialized);
+          console.log('UI buttons enabled post-audio initialization');
+        } catch (e) {
+          console.error('Error enabling UI buttons:', e.message);
+          alert('Audio started, but some UI elements failed to initialize: ' + e.message);
+        }
+
+        initializeChannelAudio();
+      } catch (e) {
+        console.error('AudioContext init error:', e.message);
+        alert('Failed to start audio: ' + e.message);
+      }
+    }
+
+    function setupChannels() {
+      console.log('Setting up channels UI...');
+      const leftContainer = document.getElementById('channels-left');
+      leftContainer.innerHTML = '';
+      channels.forEach((ch, i) => {
+        trackGains[i] = null;
+        toneGains[i] = null;
+        oscillators[i] = Array(8).fill(null).map(() => []);
+
+        const button = document.createElement('button');
+        button.className = 'channel-button';
+        button.textContent = `Channel ${i + 1} (${ch.name})`;
+        button.disabled = !isAudioInitialized;
+        button.addEventListener('click', () => openChannelPopup(i));
+        leftContainer.appendChild(button);
+        console.log(`Added channel button ${i + 1}: ${ch.name}`);
+      });
+
+      const closePopup = document.getElementById('close-popup');
+      const popupOverlay = document.getElementById('popup-overlay');
+      closePopup.addEventListener('click', closeChannelPopup);
+      popupOverlay.addEventListener('click', closeChannelPopup);
+      console.log('Channels UI setup complete');
+    }
+
+    function setupSignalButton() {
+      console.log('Setting up signal generator button...');
+      const rightContainer = document.getElementById('channels-right');
+      rightContainer.innerHTML = '';
+      const button = document.createElement('button');
+      button.className = 'signal-button';
+      button.textContent = 'Signal Generator';
+      button.disabled = !isAudioInitialized;
+      button.addEventListener('click', openSignalPopup);
+      rightContainer.appendChild(button);
+      console.log('Signal generator button added');
+    }
+
+    function openChannelPopup(channelIndex) {
+      console.log(`Opening popup for channel ${channelIndex + 1}`);
+      const ch = channels[channelIndex];
+      const isLFE = ch.name === 'LFE';
+      const maxFreq = isLFE ? 250 : 3000;
+      const minFreq = isLFE ? 1 : 15;
+      const popupContent = document.getElementById('channel-popup-content');
+      let channelHtml = `
+        <h3>Channel ${channelIndex + 1} (${ch.name})</h3>
+        <button id="play-${channelIndex}" class="stopped">Play</button>
+        <div>Volume: <input type="range" id="vol-${channelIndex}" min="0" max="1" step="0.01" value="0.5"></div>
+        <div class="freq-row">
+          <div class="freq-column">
+      `;
+      for (let j = 0; j < 4; j++) {
+        channelHtml += `
+          <div class="freq-control">
+            <div>Vol ${j + 1}: <input type="range" id="freq-vol-${channelIndex}-${j}" min="0" max="1" step="0.01" value="0.5"></div>
+            <div>Freq ${j + 1}: <input type="number" id="freq-input-${channelIndex}-${j}" min="${minFreq}" max="${maxFreq}" value="${220 + j * 10}" step="1"></div>
+            <div><input type="range" id="freq-slider-${channelIndex}-${j}" min="${minFreq}" max="${maxFreq}" value="${220 + j * 10}" step="1"></div>
+            <div><button id="freq-start-${channelIndex}-${j}" class="${freqStates[channelIndex][j] ? 'active' : ''}">Start</button>
+            <button id="freq-stop-${channelIndex}-${j}" class="${freqStates[channelIndex][j] ? '' : 'stopped'}">Stop</button></div>
+          </div>
+        `;
+      }
+      channelHtml += `
+          </div>
+          <div class="freq-column">
+      `;
+      for (let j = 4; j < 8; j++) {
+        channelHtml += `
+          <div class="freq-control">
+            <div>Vol ${j + 1}: <input type="range" id="freq-vol-${channelIndex}-${j}" min="0" max="1" step="0.01" value="0.5"></div>
+            <div>Freq ${j + 1}: <input type="number" id="freq-input-${channelIndex}-${j}" min="${minFreq}" max="${maxFreq}" value="${220 + j * 10}" step="1"></div>
+            <div><input type="range" id="freq-slider-${channelIndex}-${j}" min="${minFreq}" max="${maxFreq}" value="${220 + j * 10}" step="1"></div>
+            <div><button id="freq-start-${channelIndex}-${j}" class="${freqStates[channelIndex][j] ? 'active' : ''}">Start</button>
+            <button id="freq-stop-${channelIndex}-${j}" class="${freqStates[channelIndex][j] ? '' : 'stopped'}">Stop</button></div>
+          </div>
+        `;
+      }
+      channelHtml += `
+          </div>
+        </div>
+        <div id="freq-buttons-${channelIndex}"></div>
+      `;
+      popupContent.innerHTML = channelHtml;
+      document.getElementById('channel-popup').style.display = 'block';
+      document.getElementById('popup-overlay').style.display = 'block';
+
+      setupChannelControls(channelIndex);
+      loadChannelFrequencies(channelIndex);
+
+      if (isAudioInitialized) {
+        document.querySelectorAll('#channel-popup-content button').forEach(btn => btn.disabled = false);
+        document.querySelectorAll('#channel-popup-content input').forEach(input => input.disabled = false);
+      }
+    }
+
+    function openSignalPopup() {
+      console.log('Opening signal generator popup');
+      const popupContent = document.getElementById('signal-popup-content');
+      popupContent.innerHTML = `
+        <h3>Signal Generator</h3>
+        <div class="signal-control">
+          <div>
+            <label>Waveform:</label>
+            <select id="signal-waveform" ${isAudioInitialized ? '' : 'disabled'}>
+              <option value="sine">Sine</option>
+              <option value="square">Square</option>
+              <option value="sawtooth">Ramp</option>
+              <option value="noise">Noise</option>
+            </select>
+          </div>
+          <div>
+            <label>Frequency (Hz):</label>
+            <input type="number" id="signal-freq" min="1" max="3000" value="440" step="1" ${isAudioInitialized ? '' : 'disabled'}>
+          </div>
+          <div>
+            <label>Amplitude:</label>
+            <input type="range" id="signal-amp" min="0" max="1" step="0.01" value="0.5" ${isAudioInitialized ? '' : 'disabled'}>
+          </div>
+          <div>
+            <label>Channels:</label>
+            <select id="signal-channels" ${isAudioInitialized ? '' : 'disabled'}>
+              <option value="all">All Channels</option>
+              <option value="0">Left</option>
+              <option value="1">Center</option>
+              <option value="2">Right</option>
+              <option value="3">LFE</option>
+              <option value="4">Left Surround</option>
+              <option value="5">Left Back</option>
+              <option value="6">Right Back</option>
+              <option value="7">Right Surround</option>
+            </select>
+          </div>
+          <div>
+            <label>Modulation:</label>
+            <select id="signal-modulation" ${isAudioInitialized ? '' : 'disabled'}>
+              <option value="none">None</option>
+              <option value="am">AM</option>
+              <option value="fm">FM</option>
+            </select>
+          </div>
+          <div>
+            <label>Mod Freq (Hz):</label>
+            <input type="number" id="signal-mod-freq" min="0.1" max="100" value="5" step="0.1" ${isAudioInitialized ? '' : 'disabled'}>
+          </div>
+          <div>
+            <button id="signal-start" ${isAudioInitialized ? '' : 'disabled'}>Start Signal</button>
+            <button id="signal-stop" disabled>Stop Signal</button>
+          </div>
+          <div>
+            <button id="signal-sweep" ${isAudioInitialized ? '' : 'disabled'}>Sweep (100-500 Hz, 10s)</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('signal-popup').style.display = 'block';
+      document.getElementById('popup-overlay').style.display = 'block';
+
+      document.getElementById('signal-start').addEventListener('click', startSignal);
+      document.getElementById('signal-stop').addEventListener('click', stopSignal);
+      document.getElementById('signal-sweep').addEventListener('click', startSweep);
+      document.getElementById('close-signal-popup').addEventListener('click', closeSignalPopup);
+      console.log('Signal generator popup opened');
+    }
+
+    function closeChannelPopup() {
+      console.log('Closing channel popup');
+      document.getElementById('channel-popup').style.display = 'none';
+      document.getElementById('popup-overlay').style.display = 'none';
+      document.getElementById('channel-popup-content').innerHTML = '';
+    }
+
+    function closeSignalPopup() {
+      console.log('Closing signal generator popup');
+      document.getElementById('signal-popup').style.display = 'none';
+      document.getElementById('popup-overlay').style.display = 'none';
+      document.getElementById('signal-popup-content').innerHTML = '';
+      stopSignal();
+    }
+
+    function setupChannelControls(i) {
+      const ch = channels[i];
+      const playBtn = document.getElementById(`play-${i}`);
+      if (playBtn) {
+        playBtn.addEventListener('click', () => toggleChannel(i));
+      }
+      const volSlider = document.getElementById(`vol-${i}`);
+      if (volSlider) {
+        volSlider.addEventListener('input', (e) => {
+          if (isAudioInitialized) {
+            const value = parseFloat(e.target.value);
+            trackGains[i].gain.setValueAtTime(value * 2.5, audioCtx.currentTime);
+            toneGains[i].gain.setValueAtTime(value * 1.5, audioCtx.currentTime);
+          }
+        });
+      }
+
+      for (let j = 0; j < 8; j++) {
+        const freqInput = document.getElementById(`freq-input-${i}-${j}`);
+        const freqSlider = document.getElementById(`freq-slider-${i}-${j}`);
+        const freqVol = document.getElementById(`freq-vol-${i}-${j}`);
+        const freqStart = document.getElementById(`freq-start-${i}-${j}`);
+        const freqStop = document.getElementById(`freq-stop-${i}-${j}`);
+
+        if (freqInput) {
+          freqInput.addEventListener('input', (e) => {
+            if (isAudioInitialized) {
+              const freq = parseFloat(e.target.value);
+              const minFreq = ch.name === 'LFE' ? 1 : 15;
+              const maxFreq = ch.name === 'LFE' ? 250 : 3000;
+              if (isNaN(freq) || freq < minFreq || freq > maxFreq) {
+                alert(`Invalid frequency for ${ch.name}. Use ${minFreq}-${maxFreq} Hz.`);
+                return;
+              }
+              freqSlider.value = freq;
+              if (freqStates[i][j]) {
+                toggleFrequency(i, j, freq, true);
+              }
+            }
+          });
+        }
+        if (freqSlider) {
+          const debouncedUpdate = debounce((freq) => {
+            if (isAudioInitialized) {
+              freqInput.value = freq;
+              if (freqStates[i][j]) {
+                toggleFrequency(i, j, freq, true);
+              }
+            }
+          }, 50);
+          freqSlider.addEventListener('input', (e) => {
+            debouncedUpdate(parseFloat(e.target.value));
+          });
+        }
+        if (freqVol) {
+          freqVol.addEventListener('input', (e) => {
+            if (isAudioInitialized) {
+              const value = parseFloat(e.target.value);
+              freqGains[i][j].gain.setValueAtTime(value * 1.5, audioCtx.currentTime);
+            }
+          });
+        }
+        if (freqStart) {
+          freqStart.addEventListener('click', () => {
+            if (isAudioInitialized) {
+              const freq = parseFloat(freqInput.value);
+              const minFreq = ch.name === 'LFE' ? 1 : 15;
+              const maxFreq = ch.name === 'LFE' ? 250 : 3000;
+              if (isNaN(freq) || freq < minFreq || freq > maxFreq) {
+                alert(`Invalid frequency for ${ch.name}. Use ${minFreq}-${maxFreq} Hz.`);
+                return;
+              }
+              freqSlider.value = freq;
+              toggleFrequency(i, j, freq, true);
+              freqStates[i][j] = true;
+              freqStart.classList.add('active');
+              freqStop.classList.remove('stopped');
+            }
+          });
+        }
+        if (freqStop) {
+          freqStop.addEventListener('click', () => {
+            if (isAudioInitialized) {
+              toggleFrequency(i, j, null, false);
+              freqStates[i][j] = false;
+              freqStart.classList.remove('active');
+              freqStop.classList.add('stopped');
+            }
+          });
+        }
+      }
+    }
+
+    function initializeChannelAudio() {
+      console.log('Setting up channel audio nodes...');
+      channels.forEach((ch, i) => {
+        trackGains[i] = audioCtx.createGain();
+        trackGains[i].gain.setValueAtTime(1.25, audioCtx.currentTime);
+        toneGains[i] = audioCtx.createGain();
+        toneGains[i].gain.setValueAtTime(0.75, audioCtx.currentTime);
+        for (let j = 0; j < 8; j++) {
+          freqGains[i][j] = audioCtx.createGain();
+          freqGains[i][j].gain.setValueAtTime(0.75, audioCtx.currentTime);
+        }
+
+        const merger = audioCtx.createChannelMerger(8);
+        trackGains[i].connect(merger, 0, ch.index);
+        toneGains[i].connect(merger, 0, ch.index);
+        merger.connect(masterGain);
+        console.log(`Channel ${i + 1} (${ch.name}) routed to output index ${ch.index}`);
+
+        if (ch.name === 'LFE') {
+          lfeFilter = audioCtx.createBiquadFilter();
+          lfeFilter.type = 'lowpass';
+          lfeFilter.frequency.setValueAtTime(250, audioCtx.currentTime);
+          toneGains[i].connect(lfeFilter);
+          lfeFilter.connect(merger, 0, ch.index);
+          console.log(`LFE filter applied for channel ${i + 1} tones`);
+        }
+      });
+      document.getElementById('play-all').addEventListener('click', () => {
+        channels.forEach((_, i) => toggleChannel(i, true));
+        console.log('Play All clicked');
+      });
+      document.getElementById('test-channels').addEventListener('click', testChannels);
+      document.getElementById('stop-all').addEventListener('click', stopAll);
+      document.getElementById('main-volume-slider').addEventListener('input', (e) => {
+        if (isAudioInitialized) {
+          masterGain.gain.setValueAtTime(e.target.value * 4, audioCtx.currentTime);
+        }
+      });
+      console.log('Channel audio setup complete');
+    }
+
+    async function loadFrequencies() {
+      console.log('Loading frequencies...');
+      try {
+        const response = await fetchWithRetry('public/Freq/freqs.txt');
+        console.log('Fetch freqs.txt status:', response.status);
+        const text = await response.text();
+        const freqs = text.split('\n').map(f => parseFloat(f)).filter(f => !isNaN(f));
+        console.log('Frequencies:', freqs);
+        window.availableFrequencies = freqs;
+      } catch (e) {
+        console.error('Frequency load error:', e.message);
+        alert('Failed to load frequencies');
+      }
+    }
+
+    function loadChannelFrequencies(i) {
+      console.log(`Loading frequencies for channel ${i + 1}`);
+      const ch = channels[i];
+      const freqDiv = document.getElementById(`freq-buttons-${i}`);
+      freqDiv.innerHTML = '';
+      const maxFreq = ch.name === 'LFE' ? 250 : 3000;
+      if (window.availableFrequencies) {
+        window.availableFrequencies.forEach(f => {
+          if (f < (ch.name === 'LFE' ? 1 : 15) || f > maxFreq) return;
+          const btn = document.createElement('button');
+          btn.textContent = `${f} Hz`;
+          btn.disabled = !isAudioInitialized;
+          btn.classList.toggle('active', presetTones[i].active && presetTones[i].frequency === f);
+          btn.addEventListener('click', () => {
+            if (isAudioInitialized) {
+              const freqInput = document.getElementById(`freq-input-${i}-0`);
+              const freqSlider = document.getElementById(`freq-slider-${i}-0`);
+              const isPlaying = presetTones[i].active && presetTones[i].frequency === f;
+              if (!isPlaying) {
+                freqInput.value = f;
+                freqSlider.value = f;
+                toggleFrequency(i, 0, f, true);
+                presetTones[i] = { active: true, frequency: f };
+                btn.classList.add('active');
+              } else {
+                toggleFrequency(i, 0, null, false);
+                presetTones[i] = { active: false, frequency: null };
+                btn.classList.remove('active');
+              }
+            }
+          });
+          freqDiv.appendChild(btn);
+          console.log(`Added freq button ${f} Hz for channel ${i + 1}`);
+        });
+      }
+    }
+
+    async function loadAudioTracks() {
+      console.log('Preloading audio tracks...');
+      const trackButtons = document.getElementById('track-buttons');
+      trackButtons.innerHTML = '<p>Loading tracks...</p>';
+      if (!audioCtx) {
+        console.error('AudioContext not initialized. Preloading skipped until "Start Audio" is clicked.');
+        trackButtons.innerHTML = '<p>Please click "Start Audio" to load tracks.</p>';
+        return;
+      }
+      try {
+        const response = await fetchWithRetry('/music-files');
+        console.log('Fetch /music-files status:', response.status);
+        const files = await response.json();
+        console.log('Audio files received:', files);
+        if (!files.length) {
+          trackButtons.innerHTML = '<p>No audio files found in public/Music</p>';
+          console.log('No audio files found');
+          return;
+        }
+        await Promise.all(files.map(async (file) => {
+          const path = normalizePath(`public/Music/${file}`);
+          try {
+            const response = await fetchWithRetry(path, { cache: 'no-store' });
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            audioBuffers.set(path, audioBuffer);
+            console.log(`Preloaded track: ${file}, channels: ${audioBuffer.numberOfChannels}`);
+          } catch (e) {
+            console.error(`Preload error for ${file}: ${e.message}`);
+            failedPreloads.add(path);
+          }
+        }));
+        trackButtons.innerHTML = '';
+        files.forEach(file => {
+          const path = normalizePath(`public/Music/${file}`);
+          const div = document.createElement('div');
+          div.style.display = 'flex';
+          div.style.alignItems = 'center';
+          div.style.gap = '0.3rem';
+          const btn = document.createElement('button');
+          btn.textContent = file;
+          btn.disabled = !isAudioInitialized;
+          const debouncedPlay = debounce(() => {
+            if (isAudioInitialized) {
+              playTrack(path);
+            } else {
+              alert('Please start audio first');
+            }
+          }, 100);
+          btn.addEventListener('click', debouncedPlay);
+          div.appendChild(btn);
+          const vol = document.createElement('input');
+          vol.type = 'range';
+          vol.min = '0';
+          vol.max = '1';
+          vol.step = '0.01';
+          vol.value = '0.5';
+          vol.disabled = !isAudioInitialized;
+          vol.addEventListener('input', (e) => {
+            if (isAudioInitialized) {
+              const source = trackSources.find(s => s.path === path);
+              if (source) {
+                source.gainNodes.forEach(g => g.gain.setValueAtTime(e.target.value * 2.5, audioCtx.currentTime));
+              }
+            }
+          });
+          div.appendChild(vol);
+          trackButtons.appendChild(div);
+          console.log(`Added track button: ${file}, preload failed: ${failedPreloads.has(path)}`);
+        });
+        if (failedPreloads.size > 0) {
+          console.warn('Tracks failed to preload:', [...failedPreloads]);
+          alert(`Warning: ${failedPreloads.size} track(s) failed to preload but can be loaded on-demand. Check console for details.`);
+        }
+      } catch (e) {
+        console.error('Audio load error:', e.message);
+        trackButtons.innerHTML = '<p>Error loading tracks: ' + e.message + '</p>';
+        alert('Failed to load audio tracks: ' + e.message);
+      }
+    }
+
+    async function loadTreatments() {
+      console.log('Preloading treatments...');
+      const select = document.getElementById('treatment-select');
+      select.innerHTML = '<option value="">Loading treatments...</option>';
+      if (!audioCtx) {
+        console.error('AudioContext not initialized. Preloading skipped until "Start Audio" is clicked.');
+        select.innerHTML = '<option value="">Click "Start Audio" to load treatments</option>';
+        return;
+      }
+      try {
+        const response = await fetchWithRetry('/treatment-files');
+        console.log('Fetch /treatment-files status:', response.status);
+        const files = await response.json();
+        console.log('Treatment files received:', files);
+        await Promise.all(files.map(async (file) => {
+          const path = normalizePath(`public/Premade treatments/${file}`);
+          try {
+            const response = await fetchWithRetry(path, { cache: 'no-store' });
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            audioBuffers.set(path, audioBuffer);
+            console.log(`Preloaded treatment: ${file}, channels: ${audioBuffer.numberOfChannels}`);
+          } catch (e) {
+            console.error(`Preload error for ${file}: ${e.message}`);
+            failedPreloads.add(path);
+          }
+        }));
+        select.innerHTML = '<option value="">Select a Treatment</option>';
+        files.forEach(file => {
+          const path = normalizePath(`public/Premade treatments/${file}`);
+          const option = document.createElement('option');
+          option.value = path;
+          option.textContent = file;
+          select.appendChild(option);
+          console.log(`Added treatment: ${file}, preload failed: ${failedPreloads.has(path)}`);
+        });
+        document.getElementById('treatment-start').addEventListener('click', () => {
+          if (isAudioInitialized) {
+            const path = normalizePath(document.getElementById('treatment-select').value);
+            if (path) playTreatment(path);
+            else alert('Please select a treatment.');
+          }
+        });
+        document.getElementById('treatment-stop').addEventListener('click', stopTreatment);
+        document.getElementById('treatment-volume').addEventListener('input', (e) => {
+          if (isAudioInitialized) {
+            if (treatmentGain) {
+              const cappedGain = Math.min(parseFloat(e.target.value), 0.5);
+              treatmentGain.gain.linearRampToValueAtTime(cappedGain * 0.625, audioCtx.currentTime + 0.01);
+              console.log(`Treatment volume set to ${cappedGain * 0.625} (capped at 0.3125)`);
+            } else {
+              console.log('Warning: treatmentGain is null, volume change ignored');
+            }
+          }
+        });
+        if (failedPreloads.size > 0) {
+          console.warn('Treatments failed to preload:', [...failedPreloads]);
+          alert(`Warning: ${failedPreloads.size} treatment(s) failed to preload but can be loaded on-demand. Check console for details.`);
+        }
+      } catch (e) {
+        console.error('Treatment load error:', e.message);
+        select.innerHTML = '<option value="">No treatments found</option>';
+        alert('Failed to load treatments: ' + e.message);
+      }
+    }
+
+    async function playTrack(path) {
+      console.log(`Playing track: ${path}`);
+      if (!isAudioInitialized || !path) {
+        alert('Please start audio first');
+        return;
+      }
+      const normalizedPath = normalizePath(path);
+      const existing = trackSources.find(s => s.path === normalizedPath);
+      if (existing) {
+        stopTrack(normalizedPath);
+        return;
+      }
+      try {
+        let audioBuffer = audioBuffers.get(normalizedPath);
+        if (!audioBuffer) {
+          console.log(`Buffer not preloaded for ${path}, attempting on-demand load...`);
+          const response = await fetchWithRetry(path, { cache: 'no-store' });
+          const arrayBuffer = await response.arrayBuffer();
+          audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+          audioBuffers.set(normalizedPath, audioBuffer);
+          failedPreloads.delete(normalizedPath);
+          console.log(`On-demand load successful for ${path}`);
+        }
+        console.log(`Track ${path} has ${audioBuffer.numberOfChannels} channels`);
+
+        const source = audioCtx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.loop = true;
+
+        const gainNodes = channels.map((_, i) => {
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(1.25, audioCtx.currentTime);
+          return gain;
+        });
+
+        const splitter = audioCtx.createChannelSplitter(audioBuffer.numberOfChannels);
+        source.connect(splitter);
+
+        // Map input channels to output channels
+        channels.forEach((ch, i) => {
+          try {
+            if (audioBuffer.numberOfChannels === 1) {
+              // Mono: Route to Left, Right, and Center
+              if (ch.name === 'Left' || ch.name === 'Right' || ch.name === 'Center') {
+                splitter.connect(gainNodes[i], 0);
+                console.log(`Track ${path} mono channel 0 connected to ${ch.name}`);
+              }
+            } else if (audioBuffer.numberOfChannels >= 2) {
+              // Stereo or multi-channel: Map channels to corresponding outputs
+              if (ch.name === 'Left' && 0 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 0);
+                console.log(`Track ${path} channel 0 connected to Left`);
+              } else if (ch.name === 'Right' && 1 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 1);
+                console.log(`Track ${path} channel 1 connected to Right`);
+              } else if (ch.name === 'Center' && 2 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 2);
+                console.log(`Track ${path} channel 2 connected to Center`);
+              } else if (ch.name === 'LFE' && 3 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 3);
+                console.log(`Track ${path} channel 3 connected to LFE`);
+              } else if (ch.name === 'Left Surround' && 4 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 4);
+                console.log(`Track ${path} channel 4 connected to Left Surround`);
+              } else if (ch.name === 'Right Surround' && 5 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 5);
+                console.log(`Track ${path} channel 5 connected to Right Surround`);
+              } else if (ch.name === 'Left Back' && 6 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 6);
+                console.log(`Track ${path} channel 6 connected to Left Back`);
+              } else if (ch.name === 'Right Back' && 7 < audioBuffer.numberOfChannels) {
+                splitter.connect(gainNodes[i], 7);
+                console.log(`Track ${path} channel 7 connected to Right Back`);
+              }
+            }
+            gainNodes[i].connect(trackGains[i]);
+          } catch (e) {
+            console.error(`Failed to connect track ${path} to channel ${ch.name}: ${e.message}`);
+          }
+        });
+
+        source.start();
+        trackSources.push({ path: normalizedPath, source, gainNodes });
+        console.log(`Track started: ${path}, input channels: ${audioBuffer.numberOfChannels}`);
+        updateTrackButtons();
+      } catch (e) {
+        console.error(`Play track error: ${path}`, e.message);
+        alert(`Failed to play track ${path}: ${e.message}`);
+        failedPreloads.add(normalizedPath);
+        updateTrackButtons();
+      }
+    }
+
+    function stopTrack(path) {
+      console.log(`Stopping track: ${path}`);
+      const normalizedPath = normalizePath(path);
+      const index = trackSources.findIndex(s => s.path === normalizedPath);
+      if (index !== -1) {
+        trackSources[index].source.stop();
+        trackSources[index].gainNodes.forEach(g => g.disconnect());
+        trackSources.splice(index, 1);
+        updateTrackButtons();
+      }
+    }
+
+    async function playTreatment(path) {
+      console.log(`Playing treatment: ${path}`);
+      if (!isAudioInitialized || !path) {
+        alert('Please start audio first');
+        return;
+      }
+      const normalizedPath = normalizePath(path);
+      const promptSounds = document.getElementById('treatment-prompt-sounds').checked;
+      const hasOtherSounds = trackSources.length > 0 || oscillators.some(oscArray => oscArray.some(oscs => oscs.length > 0)) || signalSource;
+
+      if (promptSounds && hasOtherSounds) {
+        const shouldStop = confirm('Other sounds are playing. Stop them and start the treatment?');
+        if (shouldStop) {
+          stopAll(false);
+        }
+      }
+
+      stopTreatment();
+      currentTreatment = normalizedPath;
+
+      try {
+        let audioBuffer = audioBuffers.get(normalizedPath);
+        if (!audioBuffer) {
+          console.log(`Buffer not preloaded for ${path}, attempting on-demand load...`);
+          const response = await fetchWithRetry(path, { cache: 'no-store' });
+          const arrayBuffer = await response.arrayBuffer();
+          audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+          audioBuffers.set(normalizedPath, audioBuffer);
+          failedPreloads.delete(normalizedPath);
+          console.log(`On-demand load successful for ${path}`);
+        }
+        console.log(`Treatment ${path} has ${audioBuffer.numberOfChannels} channels`);
+
+        treatmentSource = audioCtx.createBufferSource();
+        treatmentSource.buffer = audioBuffer;
+        treatmentSource.loop = true;
+
+        treatmentGain = audioCtx.createGain();
+        const initialVolume = Math.min(parseFloat(document.getElementById('treatment-volume').value), 0.5);
+        treatmentGain.gain.setValueAtTime(initialVolume * 0.625, audioCtx.currentTime);
+        console.log(`Treatment gain initialized at ${initialVolume * 0.625} (capped at 0.3125)`);
+
+        const splitter = audioCtx.createChannelSplitter(audioBuffer.numberOfChannels);
+        treatmentSource.connect(treatmentGain);
+        treatmentGain.connect(splitter);
+
+        // Map treatment channels to output channels
+        channels.forEach((ch, i) => {
+          try {
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.3125, audioCtx.currentTime);
+            if (audioBuffer.numberOfChannels === 1) {
+              // Mono: Route to Left, Right, and Center
+              if (ch.name === 'Left' || ch.name === 'Right' || ch.name === 'Center') {
+                splitter.connect(gain, 0);
+                console.log(`Treatment ${path} mono channel 0 connected to ${ch.name}`);
+              }
+            } else if (audioBuffer.numberOfChannels >= 2) {
+              // Stereo or multi-channel: Map channels to corresponding outputs
+              if (ch.name === 'Left' && 0 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 0);
+                console.log(`Treatment ${path} channel 0 connected to Left`);
+              } else if (ch.name === 'Right' && 1 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 1);
+                console.log(`Treatment ${path} channel 1 connected to Right`);
+              } else if (ch.name === 'Center' && 2 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 2);
+                console.log(`Treatment ${path} channel 2 connected to Center`);
+              } else if (ch.name === 'LFE' && 3 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 3);
+                console.log(`Treatment ${path} channel 3 connected to LFE`);
+              } else if (ch.name === 'Left Surround' && 4 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 4);
+                console.log(`Treatment ${path} channel 4 connected to Left Surround`);
+              } else if (ch.name === 'Right Surround' && 5 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 5);
+                console.log(`Treatment ${path} channel 5 connected to Right Surround`);
+              } else if (ch.name === 'Left Back' && 6 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 6);
+                console.log(`Treatment ${path} channel 6 connected to Left Back`);
+              } else if (ch.name === 'Right Back' && 7 < audioBuffer.numberOfChannels) {
+                splitter.connect(gain, 7);
+                console.log(`Treatment ${path} channel 7 connected to Right Back`);
+              }
+            }
+            gain.connect(trackGains[i]);
+          } catch (e) {
+            console.error(`Failed to connect treatment ${path} to channel ${ch.name}: ${e.message}`);
+          }
+        });
+
+        treatmentSource.start();
+        console.log(`Treatment started: ${path}, input channels: ${audioBuffer.numberOfChannels}`);
+        document.getElementById('treatment-start').disabled = true;
+        document.getElementById('treatment-stop').disabled = false;
+      } catch (e) {
+        console.error(`Play treatment error: ${path}`, e.message);
+        alert(`Failed to play treatment ${path}: ${e.message}`);
+        failedPreloads.add(normalizedPath);
+        stopTreatment();
+        const select = document.getElementById('treatment-select');
+        Array.from(select.options).forEach(opt => {
+          if (normalizePath(opt.value) === normalizedPath) opt.disabled = true;
+        });
+      }
+    }
+
+    function stopTreatment() {
+      console.log('Stopping treatment');
+      if (treatmentSource) {
+        treatmentSource.stop();
+        treatmentSource = null;
+        treatmentGain = null;
+        currentTreatment = null;
+        document.getElementById('treatment-start').disabled = false;
+        document.getElementById('treatment-stop').disabled = true;
+        console.log('Treatment stopped, treatmentGain reset');
+      }
+    }
+
+    function updateTrackButtons() {
+      console.log('Updating track buttons');
+      const buttons = document.querySelectorAll('#track-buttons button');
+      buttons.forEach(btn => {
+        const path = normalizePath(`public/Music/${btn.textContent}`);
+        btn.classList.toggle('active', trackSources.some(s => s.path === path));
+        btn.disabled = !isAudioInitialized;
+      });
+    }
+
+    function toggleChannel(i, forcePlay = false) {
+      console.log(`Toggling channel ${i}`);
+      if (!isAudioInitialized) {
+        alert('Please start audio first');
+        return;
+      }
+      const btn = document.getElementById(`play-${i}`);
+      if (!btn) return;
+      const isPlaying = btn.classList.contains('active');
+      if (isPlaying && !forcePlay) {
+        trackGains[i].gain.setValueAtTime(0, audioCtx.currentTime);
+        btn.classList.remove('active');
+        btn.classList.add('stopped');
+        btn.textContent = 'Play';
+      } else {
+        const volSlider = document.getElementById(`vol-${i}`);
+        const value = volSlider ? parseFloat(volSlider.value) : 0.5;
+        trackGains[i].gain.setValueAtTime(value * 2.5, audioCtx.currentTime);
+        btn.classList.remove('stopped');
+        btn.classList.add('active');
+        btn.textContent = 'Stop';
+        console.log(`Channel ${i + 1} (${channels[i].name}) playing`);
+      }
+    }
+
+    function toggleFrequency(i, j, freq, start) {
+      console.log(`Toggling frequency ${freq || 'stop'} on channel ${i}, oscillator ${j}`);
+      if (!isAudioInitialized) {
+        alert('Please start audio first');
+        return;
+      }
+      oscillators[i][j].forEach(osc => osc.stop());
+      oscillators[i][j] = [];
+      if (start && freq) {
+        const minFreq = channels[i].name === 'LFE' ? 1 : 15;
+        const maxFreq = channels[i].name === 'LFE' ? 250 : 3000;
+        if (freq < minFreq || freq > maxFreq) {
+          alert(`Invalid frequency for ${channels[i].name}. Use ${minFreq}-${maxFreq} Hz.`);
+          return;
+        }
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.connect(freqGains[i][j]);
+        freqGains[i][j].connect(toneGains[i]);
+        osc.start();
+        if (freqStates[i][j]) {
+          osc.frequency.exponentialRampToValueAtTime(freq, audioCtx.currentTime + 0.01);
+        }
+        oscillators[i][j].push(osc);
+        console.log(`Started ${freq} Hz tone on channel ${i + 1} (${channels[i].name}), oscillator ${j}`);
+      } else {
+        console.log(`Stopped tone on channel ${i + 1} (${channels[i].name}), oscillator ${j}`);
+        if (j === 0 && presetTones[i].active) {
+          presetTones[i] = { active: false, frequency: null };
+          const freqButtons = document.getElementById(`freq-buttons-${i}`);
+          if (freqButtons) {
+            freqButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+          }
+        }
+      }
+    }
+
+    function generateNoise() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      return buffer;
+    }
+
+    function startSignal() {
+      console.log('Starting signal generator');
+      if (!isAudioInitialized) {
+        alert('Please start audio first');
+        return;
+      }
+      stopSignal();
+      const waveform = document.getElementById('signal-waveform').value;
+      const freq = parseFloat(document.getElementById('signal-freq').value);
+      const amp = parseFloat(document.getElementById('signal-amp').value);
+      const channel = document.getElementById('signal-channels').value;
+      const modulation = document.getElementById('signal-modulation').value;
+      const modFreq = parseFloat(document.getElementById('signal-mod-freq').value);
+
+      if (isNaN(freq) || freq < 1 || freq > 3000) {
+        alert('Invalid frequency. Use 1-3000 Hz.');
+        return;
+      }
+      if (isNaN(modFreq) || modFreq < 0.1 || modFreq > 100) {
+        alert('Invalid modulation frequency. Use 0.1-100 Hz.');
+        return;
+      }
+
+      signalGain = audioCtx.createGain();
+      signalGain.gain.setValueAtTime(amp, audioCtx.currentTime);
+
+      if (waveform === 'noise') {
+        signalSource = audioCtx.createBufferSource();
+        signalSource.buffer = generateNoise();
+        signalSource.loop = true;
+      } else {
+        signalSource = audioCtx.createOscillator();
+        signalSource.type = waveform === 'sawtooth' ? 'sawtooth' : waveform;
+        signalSource.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      }
+
+      if (modulation !== 'none') {
+        signalModulator = audioCtx.createOscillator();
+        signalModulator.frequency.setValueAtTime(modFreq, audioCtx.currentTime);
+        signalModGain = audioCtx.createGain();
+        if (modulation === 'am') {
+          signalModGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+          signalSource.connect(signalModGain);
+          signalModulator.connect(signalModGain.gain);
+          signalModGain.connect(signalGain);
+        } else {
+          signalModGain.gain.setValueAtTime(100, audioCtx.currentTime);
+          signalSource.connect(signalGain);
+          signalModulator.connect(signalModGain);
+          signalModGain.connect(signalSource.frequency);
+        }
+        signalModulator.start();
+      } else {
+        signalSource.connect(signalGain);
+      }
+
+      if (channel === 'all') {
+        signalGain.connect(masterGain);
+      } else {
+        const merger = audioCtx.createChannelMerger(8);
+        signalGain.connect(merger, 0, parseInt(channel));
+        merger.connect(masterGain);
+      }
+
+      signalSource.start();
+      const startBtn = document.getElementById('signal-start');
+      const stopBtn = document.getElementById('signal-stop');
+      if (startBtn) startBtn.disabled = true;
+      if (stopBtn) stopBtn.disabled = false;
+      console.log(`Signal started: ${waveform}, ${freq} Hz, amplitude ${amp}, channel ${channel}, modulation ${modulation}`);
+    }
+
+    function stopSignal() {
+      console.log('Stopping signal generator');
+      if (signalSource) {
+        signalSource.stop();
+        signalSource = null;
+      }
+      if (signalModulator) {
+        signalModulator.stop();
+        signalModulator = null;
+      }
+      if (signalGain) {
+        signalGain.disconnect();
+        signalGain = null;
+      }
+      if (signalModGain) {
+        signalModGain.disconnect();
+        signalModGain = null;
+      }
+      const startBtn = document.getElementById('signal-start');
+      const stopBtn = document.getElementById('signal-stop');
+      if (startBtn) startBtn.disabled = false;
+      if (stopBtn) stopBtn.disabled = true;
+      console.log('Signal stopped');
+    }
+
+    function startSweep() {
+      console.log('Starting frequency sweep');
+      if (!isAudioInitialized) {
+        alert('Please start audio first');
+        return;
+      }
+      stopSignal();
+      signalSource = audioCtx.createOscillator();
+      signalSource.type = 'sine';
+      signalSource.frequency.setValueAtTime(100, audioCtx.currentTime);
+      signalSource.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 10);
+
+      signalGain = audioCtx.createGain();
+      signalGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+
+      signalSource.connect(signalGain);
+      signalGain.connect(masterGain);
+
+      signalSource.start();
+      signalSource.stop(audioCtx.currentTime + 10);
+      const startBtn = document.getElementById('signal-start');
+      const stopBtn = document.getElementById('signal-stop');
+      if (startBtn) startBtn.disabled = true;
+      if (stopBtn) stopBtn.disabled = false;
+      setTimeout(() => {
+        stopSignal();
+      }, 10000);
+      console.log('Sweep started: 100-500 Hz over 10s');
+    }
+
+    function testChannels() {
+      console.log('Testing channels');
+      if (!isAudioInitialized) {
+        alert('Please start audio first');
+        return;
+      }
+      stopAll(false);
+      let currentChannel = 0;
+      const testDuration = 2;
+      // Define unique frequencies for each channel (LFE uses lower frequency)
+      const testFrequencies = [200, 250, 300, 350, 400, 450, 500, 45]; // Hz
+      function playNextChannel() {
+        if (currentChannel >= channels.length) {
+          console.log('Channel test complete');
+          return;
+        }
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        const frequency = testFrequencies[currentChannel];
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        osc.connect(gain);
+        const merger = audioCtx.createChannelMerger(8);
+        gain.connect(merger, 0, channels[currentChannel].index);
+        merger.connect(masterGain);
+        osc.start();
+        osc.stop(audioCtx.currentTime + testDuration);
+        console.log(`Testing channel ${currentChannel + 1}: ${channels[currentChannel].name} at ${frequency} Hz`);
+        currentChannel++;
+        setTimeout(playNextChannel, testDuration * 1000);
+      }
+      playNextChannel();
+    }
+
+    function stopAll(includeTreatment = true) {
+      console.log('Stopping all audio');
+      trackSources.forEach(source => {
+        source.source.stop();
+        source.gainNodes.forEach(g => g.disconnect());
+      });
+      trackSources = [];
+      updateTrackButtons();
+      oscillators.forEach((oscArray, i) => {
+        oscArray.forEach((oscs, j) => {
+          oscs.forEach(osc => osc.stop());
+          oscillators[i][j] = [];
+          freqStates[i][j] = false;
+          const startBtn = document.getElementById(`freq-start-${i}-${j}`);
+          const stopBtn = document.getElementById(`freq-stop-${i}-${j}`);
+          if (startBtn) startBtn.classList.remove('active');
+          if (stopBtn) stopBtn.classList.add('stopped');
+        });
+      });
+      presetTones.forEach((tone, i) => {
+        presetTones[i] = { active: false, frequency: null };
+        const freqButtons = document.getElementById(`freq-buttons-${i}`);
+        if (freqButtons) {
+          freqButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+        }
+      });
+      stopSignal();
+      if (includeTreatment) stopTreatment();
+      channels.forEach((_, i) => {
+        const btn = document.getElementById(`play-${i}`);
+        if (btn) {
+          btn.classList.remove('active');
+          btn.classList.add('stopped');
+          btn.textContent = 'Play';
+          trackGains[i].gain.setValueAtTime(0, audioCtx.currentTime);
+        }
+      });
+      console.log('All audio stopped');
+    }
+
+    init();
+  </script>
+</body>
+</html>
