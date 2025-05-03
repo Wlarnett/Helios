@@ -1,1 +1,1 @@
-This project is absoluyely useless to you. don't bother.
+This project is absolutely useless to you. don't bother.
